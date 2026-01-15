@@ -42,9 +42,10 @@ function Verify() {
       setReason(res.data.reason || "");
 
       if (res.data.status === "ALLOWED") {
-        localStorage.setItem("paper", res.data.paper);
+        localStorage.setItem("paperBase64", res.data.paperBase64);
         navigate("/download");
-      }
+    }
+
 
     } catch (err) {
       console.error(err);

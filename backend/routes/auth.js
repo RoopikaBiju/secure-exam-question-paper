@@ -10,32 +10,32 @@ const users = require("../data/users");
 /**
  * SIGNUP
  */
-router.post("/signup", async (req, res) => {
-  const { username, password, role } = req.body;
+// router.post("/signup", async (req, res) => {
+//   const { username, password, role } = req.body;
 
-  if (!username || !password || !role) {
-    return res.status(400).json({ error: "All fields required" });
-  }
-  if (role === "admin") {
-  return res.status(403).json({ error: "Admin signup disabled" });
-}
+//   if (!username || !password || !role) {
+//     return res.status(400).json({ error: "All fields required" });
+//   }
+//   if (role === "admin") {
+//   return res.status(403).json({ error: "Admin signup disabled" });
+// }
 
 
-  const existing = users.find(u => u.username === username);
-  if (existing) {
-    return res.status(400).json({ error: "User already exists" });
-  }
+//   const existing = users.find(u => u.username === username);
+//   if (existing) {
+//     return res.status(400).json({ error: "User already exists" });
+//   }
 
-  const hashedPassword = await bcrypt.hash(password, 10);
+//   const hashedPassword = await bcrypt.hash(password, 10);
 
-  users.push({
-    username,
-    password: hashedPassword,
-    role
-  });
+//   users.push({
+//     username,
+//     password: hashedPassword,
+//     role
+//   });
 
-  res.json({ message: "Signup successful" });
-});
+//   res.json({ message: "Signup successful" });
+// });
 
 /**
  * LOGIN

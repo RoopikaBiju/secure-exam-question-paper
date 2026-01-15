@@ -43,7 +43,7 @@ function Upload() {
 
   return (
     <div className="container">
-      <h2>Admin – Upload Paper</h2>
+      <h2>Admin - Upload Paper</h2>
 
       {/* ✅ Logout button */}
       <button
@@ -55,7 +55,7 @@ function Upload() {
 
       <input
         type="text"
-        placeholder="Paper Name (e.g., CS301 – End Semester Exam)"
+        placeholder="Paper Name (e.g., CS301 - End Semester Exam)"
         value={paperName}
         onChange={(e) => setPaperName(e.target.value)}
       />

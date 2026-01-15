@@ -18,7 +18,7 @@ router.post("/verify-qr", async (req, res) => {
       });
     }
 
-    // 2️⃣ Paper existence check
+    // 2️⃣ Paper existence
     const paperData = uploadRoute.paperStore[paperId];
     if (!paperData) {
       return res.json({
@@ -29,7 +29,7 @@ router.post("/verify-qr", async (req, res) => {
 
     const { paperName, encryptedPaper, examTime } = paperData;
 
-    // 3️⃣ Exam time check
+    // 3️⃣ Time check
     if (Date.now() < examTime) {
       return res.json({
         status: "DENIED",
@@ -48,7 +48,7 @@ router.post("/verify-qr", async (req, res) => {
     let chainHash;
     try {
       [chainHash] = await getPaperFromChain(paperId);
-    } catch (err) {
+    } catch {
       return res.json({
         status: "DENIED",
         paperName,
@@ -62,24 +62,24 @@ router.post("/verify-qr", async (req, res) => {
         status: "DENIED",
         paperName,
         examTime,
-        reason: "Paper tampered"
+        reason: "Paper integrity compromised"
       });
     }
 
-    // 5️⃣ Decrypt ONLY after all checks
-    const decryptedPaper = decrypt(encryptedPaper);
+    // 5️⃣ Decrypt → BASE64
+    const decryptedBase64 = decrypt(encryptedPaper);
 
+    // ✅ THIS IS THE KEY FIX
     return res.json({
       status: "ALLOWED",
-      paperId,
       paperName,
       examTime,
-      paper: decryptedPaper
+      paperBase64: decryptedBase64
     });
 
   } catch (error) {
     console.error("VERIFY ERROR:", error);
-    return res.status(500).json({ error: "Verification failed" });
+    res.status(500).json({ error: "Verification failed" });
   }
 });
 

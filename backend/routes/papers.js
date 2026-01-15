@@ -1,7 +1,7 @@
+// backend/routes/papers.js
 const express = require("express");
-const uploadRoute = require("./upload");
-
 const router = express.Router();
+const uploadRoute = require("./upload");
 
 router.get("/papers", (req, res) => {
   const papers = Object.entries(uploadRoute.paperStore).map(

@@ -3,7 +3,6 @@ import Upload from "./pages/Upload";
 import Verify from "./pages/Verify";
 import Download from "./pages/Download";
 import Login from "./pages/Login";
-import Signup from "./pages/Signup";
 import "./App.css";
 
 // Simple route guard
@@ -23,7 +22,6 @@ function App() {
       <Routes>
         {/* Public routes */}
         <Route path="/" element={<Login />} />
-        <Route path="/signup" element={<Signup />} />
 
         {/* Protected routes */}
         <Route
