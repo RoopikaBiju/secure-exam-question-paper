@@ -1,0 +1,16 @@
+env
+all_keys.json
+key_data.json
+contract_address.txt
+abi.json
+bytecode.json
+papers/
+*.enc
+__pycache__/
+*.log
+secureexam.log
+venv/
+.venv/
+.DS_Store
+Thumbs.db
+decrypted_paper.*

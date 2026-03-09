@@ -1,0 +1,772 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>SecureExam — Blockchain System</title>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+  <style>
+    :root{--bg:#04070e;--surf:#080d18;--card:#0b1120;--b1:#131f33;--b2:#1c2e4a;--green:#3dffa0;--blue:#38beff;--red:#ff4d6d;--yellow:#ffd166;--text:#d8e8f8;--muted:#3d5570;--muted2:#243548;}
+    *{margin:0;padding:0;box-sizing:border-box;}
+    body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif;min-height:100vh;display:flex;}
+    body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(61,255,160,.025) 1px,transparent 1px),linear-gradient(90deg,rgba(61,255,160,.025) 1px,transparent 1px);background-size:52px 52px;pointer-events:none;z-index:0;}
+    nav{width:220px;flex-shrink:0;background:var(--surf);border-right:1px solid var(--b1);display:flex;flex-direction:column;position:sticky;top:0;height:100vh;z-index:10;}
+    .brand{padding:24px 20px 20px;border-bottom:1px solid var(--b1);}
+    .brand-logo{font-size:17px;font-weight:800;background:linear-gradient(120deg,var(--green),var(--blue));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+    .brand-tag{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--muted);letter-spacing:2px;margin-top:3px;}
+    .nav-links{padding:16px 10px;flex:1;}
+    .nav-sec{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--muted);letter-spacing:2px;padding:0 10px;margin:14px 0 6px;}
+    .nl{display:flex;align-items:center;gap:9px;padding:9px 10px;border-radius:8px;cursor:pointer;font-size:13px;font-weight:500;color:var(--muted);transition:all .18s;border:1px solid transparent;}
+    .nl:hover{color:var(--text);background:var(--card);}
+    .nl.on{color:var(--green);background:rgba(61,255,160,.07);border-color:rgba(61,255,160,.14);}
+    .nl .ic{font-size:15px;width:18px;text-align:center;}
+    .nav-foot{padding:16px 20px;border-top:1px solid var(--b1);}
+    .who{display:flex;align-items:center;gap:7px;font-size:12px;color:var(--muted);margin-bottom:10px;}
+    .dot{width:6px;height:6px;border-radius:50%;background:var(--muted2);}
+    .dot.live{background:var(--green);box-shadow:0 0 7px var(--green);animation:blink 2s infinite;}
+    main{flex:1;padding:36px 44px;overflow-y:auto;position:relative;z-index:1;}
+    .ph{margin-bottom:28px;}
+    .pt{font-size:24px;font-weight:800;}
+    .ps{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);margin-top:5px;letter-spacing:.5px;}
+    .panel{display:none;animation:up .4s ease both;}
+    .panel.on{display:block;}
+    .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:24px;}
+    .sc{background:var(--card);border:1px solid var(--b1);border-radius:12px;padding:18px 22px;}
+    .sl{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--muted);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:8px;}
+    .sv{font-size:30px;font-weight:800;} .sv.g{color:var(--green);} .sv.b{color:var(--blue);}
+    .cbar{background:var(--surf);border:1px solid var(--b1);border-radius:9px;padding:11px 16px;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--blue);margin-bottom:24px;display:flex;align-items:center;gap:10px;}
+    .cbar span{color:var(--muted);}
+    .card{background:var(--card);border:1px solid var(--b1);border-radius:13px;padding:26px;margin-bottom:18px;}
+    .card:hover{border-color:var(--b2);}
+    .ct{font-size:15px;font-weight:700;margin-bottom:5px;}
+    .cd{font-size:13px;color:var(--muted);margin-bottom:22px;line-height:1.6;}
+    .fg{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+    .fi{display:flex;flex-direction:column;gap:5px;}
+    .fi.full{grid-column:1/-1;}
+    label{font-size:11px;font-weight:600;color:var(--muted);letter-spacing:.4px;}
+    input,select,textarea{background:var(--surf);border:1px solid var(--b2);border-radius:8px;color:var(--text);padding:10px 13px;font-family:'Outfit',sans-serif;font-size:13px;outline:none;transition:border-color .2s,box-shadow .2s;width:100%;}
+    input:focus,select:focus,textarea:focus{border-color:var(--green);box-shadow:0 0 0 3px rgba(61,255,160,.07);}
+    textarea{resize:vertical;min-height:110px;font-family:'JetBrains Mono',monospace;font-size:11px;}
+    .tog{display:flex;gap:7px;margin-bottom:14px;}
+    .tb{padding:7px 16px;border-radius:7px;border:1px solid var(--b2);background:transparent;color:var(--muted);font-family:'Outfit',sans-serif;font-size:12px;font-weight:600;cursor:pointer;transition:all .18s;}
+    .tb.on{background:rgba(61,255,160,.09);border-color:rgba(61,255,160,.25);color:var(--green);}
+    .dz{border:2px dashed var(--b2);border-radius:9px;padding:28px;text-align:center;cursor:pointer;transition:all .2s;color:var(--muted);font-size:13px;}
+    .dz:hover,.dz.over{border-color:var(--green);background:rgba(61,255,160,.03);color:var(--text);}
+    .dz .di{font-size:28px;margin-bottom:7px;}
+    #fn{margin-top:7px;font-size:11px;font-family:'JetBrains Mono',monospace;color:var(--green);display:none;}
+    .btn{display:inline-flex;align-items:center;gap:7px;padding:10px 20px;border-radius:8px;border:none;font-family:'Outfit',sans-serif;font-size:13px;font-weight:600;cursor:pointer;transition:all .18s;text-decoration:none;}
+    .btn:disabled{opacity:.38;cursor:not-allowed;}
+    .bp{background:var(--green);color:#000;}
+    .bp:hover:not(:disabled){background:#fff;box-shadow:0 0 22px rgba(61,255,160,.35);transform:translateY(-1px);}
+    .bg{background:transparent;color:var(--text);border:1px solid var(--b2);}
+    .bg:hover:not(:disabled){border-color:var(--blue);color:var(--blue);transform:translateY(-1px);}
+    .br{background:rgba(255,77,109,.09);color:var(--red);border:1px solid rgba(255,77,109,.22);}
+    .br:hover:not(:disabled){background:var(--red);color:#fff;box-shadow:0 0 20px rgba(255,77,109,.35);transform:translateY(-1px);}
+    .bsm{padding:6px 13px;font-size:12px;border-radius:7px;}
+    .spin{width:12px;height:12px;border:2px solid rgba(0,0,0,.2);border-top-color:currentColor;border-radius:50%;animation:rot .6s linear infinite;display:none;}
+    .tw{overflow-x:auto;border-radius:11px;border:1px solid var(--b1);}
+    table{width:100%;border-collapse:collapse;}
+    th{background:var(--surf);font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);padding:13px 15px;text-align:left;border-bottom:1px solid var(--b1);}
+    td{padding:13px 15px;font-size:13px;border-bottom:1px solid var(--b1);vertical-align:middle;}
+    tr:last-child td{border-bottom:none;}
+    tr:hover td{background:rgba(255,255,255,.015);}
+    .badge{display:inline-flex;align-items:center;gap:5px;padding:3px 9px;border-radius:100px;font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;}
+    .bl{background:rgba(255,77,109,.09);color:var(--red);border:1px solid rgba(255,77,109,.2);}
+    .bon{background:rgba(61,255,160,.09);color:var(--green);border:1px solid rgba(61,255,160,.2);}
+    .bd{width:4px;height:4px;border-radius:50%;background:currentColor;}
+    .bon .bd{animation:blink 1.5s infinite;box-shadow:0 0 5px currentColor;}
+    .mono{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);}
+    .bgrp{display:flex;gap:7px;flex-wrap:wrap;align-items:center;}
+    .res{margin-top:14px;padding:13px 16px;border-radius:9px;font-family:'JetBrains Mono',monospace;font-size:11px;line-height:1.8;display:none;animation:up .25s ease both;}
+    .rok{background:rgba(61,255,160,.06);border:1px solid rgba(61,255,160,.18);color:var(--green);}
+    .rerr{background:rgba(255,77,109,.06);border:1px solid rgba(255,77,109,.18);color:var(--red);}
+    .rwarn{background:rgba(255,209,102,.06);border:1px solid rgba(255,209,102,.18);color:var(--yellow);}
+    .overlay{position:fixed;inset:0;background:rgba(4,7,14,.88);backdrop-filter:blur(14px);display:flex;align-items:center;justify-content:center;z-index:100;}
+    .lbox{background:var(--card);border:1px solid var(--b2);border-radius:16px;padding:36px;width:340px;animation:up .35s ease both;}
+    .lt{font-size:19px;font-weight:800;margin-bottom:5px;}
+    .ls{font-size:12px;color:var(--muted);margin-bottom:24px;}
+    .mbg{position:fixed;inset:0;background:rgba(4,7,14,.82);backdrop-filter:blur(10px);display:none;align-items:center;justify-content:center;z-index:50;}
+    .mbg.open{display:flex;}
+    .modal{background:var(--card);border:1px solid var(--b2);border-radius:14px;padding:28px;width:520px;max-width:92vw;max-height:82vh;overflow-y:auto;animation:up .28s ease both;}
+    .mh{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;}
+    .mt{font-size:17px;font-weight:700;}
+    .mx{background:none;border:none;color:var(--muted);font-size:18px;cursor:pointer;line-height:1;}
+    .mx:hover{color:var(--text);}
+    .dr{display:flex;flex-direction:column;gap:4px;padding:10px 0;border-bottom:1px solid var(--b1);}
+    .dr:last-of-type{border-bottom:none;}
+    .dl{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;}
+    .dv{font-size:12px;word-break:break-all;}
+    .dv.m{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--green);}
+    .empty{text-align:center;padding:52px 20px;color:var(--muted);}
+    .empty .ei{font-size:36px;margin-bottom:10px;}
+    .empty .et{font-size:14px;color:var(--text);margin-bottom:5px;}
+    .steps{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:6px;}
+    .step{text-align:center;padding:16px 10px;background:var(--surf);border-radius:10px;border:1px solid var(--b1);}
+    .step .si{font-size:22px;margin-bottom:8px;}
+    .step .sn{font-size:12px;font-weight:600;}
+    .step .sd{font-size:10px;color:var(--muted);margin-top:3px;font-family:'JetBrains Mono',monospace;}
+
+    /* ── Toast notification ── */
+    .toast{
+      position:fixed;top:28px;left:50%;transform:translateX(-50%) translateY(-80px);
+      background:var(--card);border:1px solid var(--red);border-radius:12px;
+      padding:16px 24px;font-family:'Outfit',sans-serif;font-size:14px;font-weight:600;
+      color:var(--red);z-index:999;box-shadow:0 8px 32px rgba(0,0,0,.4);
+      transition:transform .35s cubic-bezier(.34,1.56,.64,1);
+      display:flex;align-items:center;gap:10px;min-width:280px;max-width:420px;
+    }
+    .toast.show{transform:translateX(-50%) translateY(0);}
+    .toast-icon{font-size:20px;}
+
+
+    body.light{
+      --bg:#f0f4f8;--surf:#ffffff;--card:#ffffff;--b1:#dde3ec;--b2:#c8d0dc;
+      --green:#0a7c4e;--blue:#1565c0;--red:#c0392b;--yellow:#b7770d;
+      --text:#1a2332;--muted:#6b7f96;--muted2:#c8d0dc;
+    }
+    body.light .brand-logo{background:linear-gradient(120deg,#0a7c4e,#1565c0);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+    body.light nav{background:#fff;border-color:#dde3ec;}
+    body.light .nl.on{background:rgba(10,124,78,.08);border-color:rgba(10,124,78,.2);}
+    body.light .cbar{background:#f0f4f8;}
+    body.light table th{background:#f8fafc;}
+    body.light .toast{background:#fff;box-shadow:0 8px 32px rgba(0,0,0,.12);}
+    body.light input,body.light select,body.light textarea{background:#f8fafc;border-color:#c8d0dc;color:#1a2332;}
+    body.light .overlay{background:rgba(240,244,248,.92);}
+    body.light .lbox,body.light .modal{background:#fff;border-color:#dde3ec;}
+    body.light body::before{background-image:linear-gradient(rgba(10,124,78,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(10,124,78,.04) 1px,transparent 1px);}
+
+    @keyframes up{from{opacity:0;transform:translateY(13px);}to{opacity:1;transform:translateY(0);}}
+    @keyframes blink{0%,100%{opacity:1;}50%{opacity:.35;}}
+    @keyframes rot{to{transform:rotate(360deg);}}
+  </style>
+</head>
+<body>
+
+<!-- Login overlay -->
+<div class="overlay" id="lov" style="display:none;">
+  <div class="lbox">
+    <div class="lt">🔐 Admin Login</div>
+    <div class="ls">Enter password to manage exam papers</div>
+    <div class="fi" style="margin-bottom:14px;">
+      <label>Password</label>
+      <input type="password" id="lpass" placeholder="Enter password" onkeydown="if(event.key==='Enter')doLogin()"/>
+    </div>
+    <button class="btn bp" style="width:100%" onclick="doLogin()" id="lbtn">
+      <span class="spin" id="lspin"></span> Login
+    </button>
+    <div class="res" id="lres" style="margin-top:12px;"></div>
+  </div>
+</div>
+
+
+
+<!-- Edit Exam Time Modal -->
+<div class="mbg" id="editmodalbg">
+  <div class="modal" style="max-width:400px;">
+    <div class="mh">
+      <div class="mt">✏️ Edit Exam Time</div>
+      <button class="mx" onclick="closeEdit()">✕</button>
+    </div>
+    <div style="font-size:13px;color:var(--muted);margin-bottom:20px;" id="editexamname"></div>
+    <div class="fi" style="margin-bottom:16px;">
+      <label>New Exam Date & Time</label>
+      <input type="datetime-local" id="newdt"/>
+    </div>
+    <div style="font-size:11px;color:var(--muted);font-family:'JetBrains Mono',monospace;
+                margin-bottom:16px;">
+      ⚠️ Can only be changed before key is released
+    </div>
+    <button class="btn bp" style="width:100%" onclick="submitEdit()" id="editbtn">
+      <span class="spin" id="editspin"></span> Update on Blockchain
+    </button>
+    <div class="res" id="editres"></div>
+  </div>
+</div>
+
+<!-- QR Modal -->
+<div class="mbg" id="qrmodalbg">
+  <div class="modal" style="max-width:380px;text-align:center;">
+    <div class="mh">
+      <div class="mt" id="qrtitle">Scan to Open Exam</div>
+      <button class="mx" onclick="closeQR()">✕</button>
+    </div>
+    <div id="qrbody">
+      <div class="empty"><div class="ei">⏳</div><div class="et">Generating QR...</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- Detail modal -->
+<div class="mbg" id="modalbg">
+  <div class="modal">
+    <div class="mh">
+      <div class="mt" id="modaltitle">Exam Details</div>
+      <button class="mx" onclick="closeModal()">✕</button>
+    </div>
+    <div id="modalbody"></div>
+    <div class="bgrp" style="margin-top:18px;" id="modalactions"></div>
+    <div class="res" id="modalres"></div>
+  </div>
+</div>
+
+
+<div class="toast" id="toast"><span class="toast-icon">🔒</span><span id="toastmsg"></span></div>
+
+<nav>
+  <div class="brand">
+    <div class="brand-logo">SecureExam</div>
+    <div class="brand-tag">Blockchain System</div>
+  </div>
+  <div class="nav-links">
+    <div class="nav-sec">Main</div>
+    <div class="nl on" id="nav-dash" onclick="show('dash')"><span class="ic">📊</span>Dashboard</div>
+    <div class="nl" id="nav-exams" onclick="show('exams')"><span class="ic">📋</span>All Exams</div>
+    <div class="nav-sec" id="nav-admin-label">Admin</div>
+    <div class="nl" id="nav-upload" onclick="show('upload')"><span class="ic">📤</span>Upload Paper</div>
+    <div class="nl" id="nav-tamper" onclick="show('tamper')"><span class="ic">🛡️</span>Security</div>
+  </div>
+  <div class="nav-foot">
+    <div class="who"><div class="dot" id="adot"></div><span id="awho">Not logged in</span></div>
+    <div style="display:flex;gap:8px;margin-bottom:8px;">
+      <button class="btn bg bsm" style="flex:1" id="authbtn" onclick="toggleAuth()">Login</button>
+      <button class="btn bg bsm" id="themebtn" onclick="toggleTheme()" title="Toggle light/dark mode" style="padding:6px 10px;font-size:16px;">🌙</button>
+    </div>
+  </div>
+</nav>
+
+<main>
+
+  <!-- Dashboard -->
+  <div class="panel on" id="panel-dash">
+    <div class="ph"><div class="pt">Dashboard</div><div class="ps">Blockchain exam distribution overview</div></div>
+    <div class="stats">
+      <div class="sc"><div class="sl">Total Exams</div><div class="sv" id="stot">—</div></div>
+      <div class="sc"><div class="sl">Released</div><div class="sv g" id="srel">—</div></div>
+      <div class="sc"><div class="sl">Locked</div><div class="sv b" id="sloc">—</div></div>
+    </div>
+    <div class="cbar" id="cbar"><span>CONTRACT</span> Loading...</div>
+    <div class="card">
+      <div class="ct">How It Works</div>
+      <div class="cd">Papers are encrypted with AES-256-GCM before storage. The decryption key is locked in an Ethereum smart contract and only released at exam time. Any file modification is instantly detected via cryptographic authentication.</div>
+      <div class="steps">
+        <div class="step"><div class="si">📝</div><div class="sn">Upload</div><div class="sd">Set exam + time</div></div>
+        <div class="step"><div class="si">🔐</div><div class="sn">Encrypt</div><div class="sd">AES-256-GCM</div></div>
+        <div class="step"><div class="si">⛓️</div><div class="sn">Register</div><div class="sd">Hash on-chain</div></div>
+        <div class="step"><div class="si">⏰</div><div class="sn">Release</div><div class="sd">Key at exam time</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- All Exams -->
+  <div class="panel" id="panel-exams">
+    <div class="ph" style="display:flex;justify-content:space-between;align-items:flex-start;">
+      <div><div class="pt">All Exams</div><div class="ps">Live from blockchain</div></div>
+      <button class="btn bg bsm" onclick="loadExams()">↻ Refresh</button>
+    </div>
+    <div class="tw">
+      <table>
+        <thead><tr><th>ID</th><th>Exam Name</th><th>Unlock Time</th><th>Status</th><th>Hash</th><th>Actions</th></tr></thead>
+        <tbody id="examtbody">
+          <tr><td colspan="6"><div class="empty"><div class="ei">⏳</div><div class="et">Loading exams...</div></div></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Upload Paper -->
+  <div class="panel" id="panel-upload">
+    <div class="ph"><div class="pt">Upload Paper</div><div class="ps">Encrypt and register on blockchain</div></div>
+    <div class="card">
+      <div class="ct">New Exam Paper</div>
+      <div class="cd">The paper will be encrypted with AES-256-GCM. The hash is stored on blockchain. The decryption key is locked until your specified exam time.</div>
+      <div class="fg" style="margin-bottom:16px;">
+        <div class="fi"><label>Exam Name</label><input type="text" id="ename" placeholder="e.g. Mathematics Final Exam"/></div>
+        <div class="fi"><label>Exam Date & Time</label><input type="datetime-local" id="edt"/></div>
+      </div>
+      <label style="display:block;margin-bottom:8px;">Paper Content</label>
+      <div class="tog">
+        <button class="tb on" id="ttxt" onclick="setType('text')">📝 Text</button>
+        <button class="tb" id="tfile" onclick="setType('file')">📎 PDF / File</button>
+      </div>
+      <div id="txtarea"><textarea id="ptxt" placeholder="Type or paste the exam questions here..."></textarea></div>
+      <div id="filearea" style="display:none;">
+        <div class="dz" id="dz" onclick="document.getElementById('pfile').click()"
+             ondragover="event.preventDefault();this.classList.add('over')"
+             ondragleave="this.classList.remove('over')"
+             ondrop="handleDrop(event)">
+          <div class="di">📂</div>
+          <div>Click to browse or drag & drop your file</div>
+          <div style="font-size:11px;margin-top:4px;">PDF, TXT, DOCX supported</div>
+          <div id="fn"></div>
+        </div>
+        <input type="file" id="pfile" style="display:none" onchange="handleFile(this)"/>
+      </div>
+      <div style="margin-top:18px;">
+        <button class="btn bp" onclick="uploadPaper()" id="ubtn">
+          <span class="spin" id="uspin"></span> 🔐 Encrypt & Register
+        </button>
+      </div>
+      <div class="res" id="ures"></div>
+    </div>
+  </div>
+
+  <!-- Security Info -->
+  <div class="panel" id="panel-tamper">
+    <div class="ph"><div class="pt">How Blockchain Secures Exams</div><div class="ps">3-layer security model</div></div>
+    <div class="card">
+      <div class="ct">Why This System Cannot Be Tampered With</div>
+      <div class="cd">Three independent security layers work together to make exam paper tampering cryptographically impossible.</div>
+      <div style="display:grid;gap:14px;margin-top:4px;">
+
+        <div style="background:var(--surf);border:1px solid var(--b1);border-left:3px solid var(--green);border-radius:10px;padding:18px;">
+          <div style="font-size:13px;font-weight:700;color:var(--green);margin-bottom:8px;">🔐 Layer 1 — AES-256-GCM Encryption</div>
+          <div style="font-size:12px;color:var(--muted);line-height:1.9;">The exam paper is encrypted using AES-256-GCM before storage on the server. GCM mode produces an <strong style="color:var(--text);">authentication tag</strong> alongside the ciphertext. If even a single byte of the encrypted file is modified by an attacker, the tag verification fails instantly — making decryption <strong style="color:var(--text);">mathematically impossible</strong>, even with the correct key.</div>
+        </div>
+
+        <div style="background:var(--surf);border:1px solid var(--b1);border-left:3px solid var(--blue);border-radius:10px;padding:18px;">
+          <div style="font-size:13px;font-weight:700;color:var(--blue);margin-bottom:8px;">⛓️ Layer 2 — Blockchain Integrity</div>
+          <div style="font-size:12px;color:var(--muted);line-height:1.9;">The SHA-256 hash of the original paper is permanently written to the Ethereum blockchain at the time of upload. This record <strong style="color:var(--text);">cannot be altered or deleted</strong>. Anyone — student, faculty, or examiner — can verify the paper's authenticity at any time by comparing the computed hash with the blockchain record, with no login required.</div>
+        </div>
+
+        <div style="background:var(--surf);border:1px solid var(--b1);border-left:3px solid var(--yellow);border-radius:10px;padding:18px;">
+          <div style="font-size:13px;font-weight:700;color:var(--yellow);margin-bottom:8px;">⏰ Layer 3 — Time-Locked Key Release</div>
+          <div style="font-size:12px;color:var(--muted);line-height:1.9;">The AES decryption key is stored inside the smart contract and is <strong style="color:var(--text);">programmatically locked</strong> until the scheduled exam time. The release is enforced by the blockchain itself — not by a human. Even the admin cannot bypass this. Pre-exam leakage of the decryption key is impossible.</div>
+        </div>
+
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="ct">What Happens If Someone Tries to Tamper</div>
+      <div class="cd" style="margin-bottom:16px;">Here is exactly what happens if an attacker modifies the encrypted file on the server:</div>
+      <div style="font-family:'JetBrains Mono',monospace;font-size:11px;line-height:2.2;background:var(--surf);padding:18px;border-radius:8px;border:1px solid var(--b1);">
+        <div><span style="color:var(--yellow);">STEP 1</span>  Attacker modifies bytes in the encrypted file on server</div>
+        <div><span style="color:var(--yellow);">STEP 2</span>  Exam center downloads the modified file</div>
+        <div><span style="color:var(--yellow);">STEP 3</span>  System attempts AES-GCM decryption with correct key</div>
+        <div style="margin-top:6px;"><span style="color:var(--red);">RESULT</span>  ❌ Authentication tag mismatch — decryption FAILS completely</div>
+        <div><span style="color:var(--red);">RESULT</span>  ❌ SHA-256 hash mismatch — blockchain proof confirms tampering</div>
+        <div><span style="color:var(--red);">RESULT</span>  ❌ Paper is unreadable — attacker achieved nothing</div>
+        <div style="margin-top:10px;padding-top:10px;border-top:1px solid var(--b2);color:var(--green);">✅ The original encrypted paper on the blockchain remains the ground truth</div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<script>
+// ── State ─────────────────────────────────────────────
+let isAdmin = false;
+let editExamId = null;
+
+// ── Init ──────────────────────────────────────────────
+window.onload = async () => {
+  const r = await fetch('/api/auth');
+  const d = await r.json();
+  setRole(d.role);
+  loadDash();
+  loadExams();
+};
+
+// ── Role management ───────────────────────────────────
+function setRole(role) {
+  isAdmin = (role === 'admin');
+  const dot  = document.getElementById('adot');
+  const who  = document.getElementById('awho');
+  const btn  = document.getElementById('authbtn');
+  const navUp   = document.getElementById('nav-upload');
+  const navSec  = document.getElementById('nav-tamper');
+
+  if (isAdmin) {
+    dot.className  = 'dot live';
+    who.textContent = 'Admin';
+    btn.textContent = 'Logout';
+    navUp.style.display  = '';
+    navSec.style.display = '';
+    document.getElementById('nav-admin-label').style.display = '';
+  } else {
+    dot.className   = 'dot';
+    who.textContent  = 'Viewer';
+    btn.textContent  = 'Login';
+    navUp.style.display  = 'none';
+    navSec.style.display = 'none';
+    document.getElementById('nav-admin-label').style.display = 'none';
+  }
+  loadExams();
+}
+
+function toggleAuth() {
+  if (isAdmin) doLogout();
+  else showLogin();
+}
+
+function showLogin() {
+  document.getElementById('lov').style.display = 'flex';
+  setTimeout(() => document.getElementById('lpass').focus(), 100);
+}
+
+async function doLogin() {
+  const pass = document.getElementById('lpass').value;
+  const btn  = document.getElementById('lbtn');
+  const spin = document.getElementById('lspin');
+  btn.disabled = true; spin.style.display = 'block';
+
+  const r = await fetch('/api/login', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({password: pass})
+  });
+  const d = await r.json();
+  btn.disabled = false; spin.style.display = 'none';
+
+  if (d.success) {
+    document.getElementById('lov').style.display = 'none';
+    document.getElementById('lpass').value = '';
+    setRole(d.role);
+  } else {
+    showRes('lres', 'err', '❌ ' + d.error);
+  }
+}
+
+async function doLogout() {
+  await fetch('/api/logout', {method: 'POST'});
+  setRole('public');
+}
+
+// ── Navigation ────────────────────────────────────────
+function show(id) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('on'));
+  document.querySelectorAll('.nl').forEach(n => n.classList.remove('on'));
+  document.getElementById('panel-' + id).classList.add('on');
+  document.getElementById('nav-' + id).classList.add('on');
+  if (id === 'exams') loadExams();
+  if (id === 'dash')  loadDash();
+}
+
+// ── Dashboard ─────────────────────────────────────────
+async function loadDash() {
+  const r = await fetch('/api/papers');
+  const d = await r.json();
+  if (!d.success) return;
+  document.getElementById('stot').textContent = d.count;
+  document.getElementById('srel').textContent = d.papers.filter(p => p.is_released).length;
+  document.getElementById('sloc').textContent = d.papers.filter(p => !p.is_released).length;
+  document.getElementById('cbar').innerHTML   = `<span>CONTRACT</span> ${d.contract}`;
+}
+
+// ── Exams table ───────────────────────────────────────
+async function loadExams() {
+  const r = await fetch('/api/papers');
+  const d = await r.json();
+  const tb = document.getElementById('examtbody');
+  if (!d.success) {
+    tb.innerHTML = `<tr><td colspan="6"><div class="empty"><div class="ei">⚠️</div><div class="et">${d.error}</div></div></td></tr>`;
+    return;
+  }
+  if (!d.papers.length) {
+    tb.innerHTML = `<tr><td colspan="6"><div class="empty"><div class="ei">📭</div><div class="et">No exams registered yet</div><div>Upload a paper to get started</div></div></td></tr>`;
+    return;
+  }
+  tb.innerHTML = d.papers.map(p => `
+    <tr>
+      <td><span class="mono">#${p.id}</span></td>
+      <td><strong>${p.exam_name}</strong></td>
+      <td><span class="mono">${p.unlock_str}</span></td>
+      <td>${p.is_released
+        ? `<span class="badge bon"><span class="bd"></span>Released</span>`
+        : `<span class="badge bl"><span class="bd"></span>Locked</span>`}</td>
+      <td><span class="mono">${p.paper_hash.slice(0,16)}...</span></td>
+      <td>
+        <div class="bgrp">
+          <button class="btn bg bsm" onclick="openDetail(${p.id})">Details</button>
+          <button class="btn bg bsm" onclick="doPublicVerify(${p.id})">🔍 Verify</button>
+          ${isAdmin ? `
+            <button class="btn bg bsm" onclick="showQR(${p.id})">📱 QR</button>
+            ${!p.is_released
+              ? `<button class="btn bg bsm" onclick="showEdit(${p.id},'${p.exam_name}')">✏️ Edit</button>
+                 <button class="btn bp bsm" onclick="doRelease(${p.id})">🔓 Release</button>`
+              : ''}
+          ` : ''}
+        </div>
+      </td>
+    </tr>
+  `).join('');
+}
+
+// ── Public Verify ─────────────────────────────────────
+async function doPublicVerify(id) {
+  // Close all other open verify results first
+  document.querySelectorAll('[id^="pubres-"]').forEach(el => {
+    if (el.id !== 'pubres-' + id) el.remove();
+  });
+
+  const existing = document.getElementById('pubres-' + id);
+  if (existing) { existing.remove(); return; }
+
+  const r = await fetch(`/api/verify/${id}`);
+  const d = await r.json();
+
+  const msg = d.success && d.verified
+    ? '✅ PAPER INTEGRITY VERIFIED\n\nThis paper is genuine and has not been tampered with.\n\nComputed hash  : ' + d.computed_hash + '\nBlockchain hash: ' + d.stored_hash
+    : '❌ ' + (d.error || 'Integrity check failed');
+
+  const box = document.createElement('tr');
+  box.id = 'pubres-' + id;
+  box.innerHTML = `<td colspan="6" style="padding:0 15px 14px;">
+    <div class="res ${d.success && d.verified ? 'rok' : 'rerr'}"
+         style="display:block;white-space:pre-wrap;font-size:10px;">${msg}</div>
+  </td>`;
+
+  const rows = document.querySelectorAll('#examtbody tr');
+  for (const row of rows) {
+    if (row.querySelector && row.querySelector(`[onclick*="doPublicVerify(${id})"]`)) {
+      row.after(box); break;
+    }
+  }
+}
+
+// ── Detail Modal ──────────────────────────────────────
+async function openDetail(id) {
+  const r = await fetch('/api/papers');
+  const d = await r.json();
+  const p = d.papers.find(x => x.id === id);
+  if (!p) return;
+
+  document.getElementById('modaltitle').textContent = p.exam_name;
+  document.getElementById('modalres').style.display = 'none';
+  document.getElementById('modalbody').innerHTML = `
+    <div class="dr"><div class="dl">Exam ID</div><div class="dv">#${p.id}</div></div>
+    <div class="dr"><div class="dl">Status</div><div class="dv">${p.is_released ? '✅ Key Released' : '🔒 Locked'}</div></div>
+    <div class="dr"><div class="dl">Unlock Time</div><div class="dv">${p.unlock_str}</div></div>
+    <div class="dr"><div class="dl">Encrypted File</div><div class="dv m">${p.enc_file}</div></div>
+    <div class="dr"><div class="dl">Paper Hash (Blockchain)</div><div class="dv m">${p.paper_hash}</div></div>
+    <div class="dr">
+      <div class="dl">Admin Digital Signature</div>
+      <div class="dv" style="color:${p.sig_valid ? 'var(--green)' : 'var(--muted)'};">
+        ${p.sig_valid ? '✅ Verified — signed by admin' : '⚠️ Not available'}
+      </div>
+      ${p.sig_valid ? `<div class="dv m" style="font-size:10px;opacity:.55;margin-top:2px;">${p.admin_sig ? p.admin_sig.slice(0,32)+'...' : ''}</div>` : ''}
+    </div>
+  `;
+
+  const acts = document.getElementById('modalactions');
+  acts.innerHTML = '';
+  if (!p.is_released && isAdmin) {
+    acts.innerHTML += `<button class="btn bp bsm" onclick="doRelease(${id}, true)">🔓 Release Key</button>`;
+    acts.innerHTML += `<button class="btn bg bsm" onclick="closeModal();showEdit(${id},'${p.exam_name}')">✏️ Edit Time</button>`;
+  }
+  if (isAdmin)
+    acts.innerHTML += `<button class="btn bg bsm" onclick="closeModal();showQR(${id})">📱 Generate QR</button>`;
+
+  document.getElementById('modalbg').classList.add('open');
+}
+
+function closeModal() { document.getElementById('modalbg').classList.remove('open'); }
+
+// ── Release Key ───────────────────────────────────────
+async function doRelease(id, inModal = false) {
+  if (!isAdmin) { showToast('Please login as admin first', '🔐'); return; }
+  const r = await fetch(`/api/release/${id}`, {method: 'POST'});
+  const d = await r.json();
+  if (d.success) {
+    if (inModal) showRes('modalres', 'ok', `✅ Key released!\nTX: ${d.tx_hash}`);
+    loadExams(); loadDash();
+  } else {
+    closeModal();
+    showToast(d.error, '🔒');
+  }
+}
+
+// ── Upload Paper ──────────────────────────────────────
+let uploadType = 'text';
+function setType(t) {
+  uploadType = t;
+  document.getElementById('txtarea').style.display  = t === 'text' ? '' : 'none';
+  document.getElementById('filearea').style.display = t === 'file' ? '' : 'none';
+  document.getElementById('ttxt').className  = 'tb' + (t === 'text' ? ' on' : '');
+  document.getElementById('tfile').className = 'tb' + (t === 'file' ? ' on' : '');
+}
+
+function handleFile(input) {
+  const fn = document.getElementById('fn');
+  if (input.files[0]) { fn.textContent = '📎 ' + input.files[0].name; fn.style.display = 'block'; }
+}
+
+function handleDrop(e) {
+  e.preventDefault();
+  document.getElementById('dz').classList.remove('over');
+  const f = e.dataTransfer.files[0];
+  if (f) {
+    document.getElementById('pfile').files = e.dataTransfer.files;
+    const fn = document.getElementById('fn');
+    fn.textContent = '📎 ' + f.name; fn.style.display = 'block';
+  }
+}
+
+async function uploadPaper() {
+  if (!isAdmin) { showToast('Please login as admin first', '🔐'); return; }
+  const name = document.getElementById('ename').value.trim();
+  const dt   = document.getElementById('edt').value;
+  if (!name) { showRes('ures', 'warn', '⚠️ Exam name is required'); return; }
+  if (!dt)   { showRes('ures', 'warn', '⚠️ Exam date/time is required'); return; }
+
+  const fd = new FormData();
+  fd.append('exam_name', name);
+  fd.append('exam_datetime', dt);
+  fd.append('content_type', uploadType);
+  if (uploadType === 'text') {
+    const txt = document.getElementById('ptxt').value.trim();
+    if (!txt) { showRes('ures', 'warn', '⚠️ Paper text cannot be empty'); return; }
+    fd.append('paper_text', txt);
+  } else {
+    const f = document.getElementById('pfile').files[0];
+    if (!f) { showRes('ures', 'warn', '⚠️ Please select a file'); return; }
+    fd.append('paper_file', f);
+  }
+
+  const btn  = document.getElementById('ubtn');
+  const spin = document.getElementById('uspin');
+  btn.disabled = true; spin.style.display = 'block';
+  showRes('ures', 'warn', '⏳ Encrypting and registering on blockchain...');
+
+  const r = await fetch('/api/upload', {method: 'POST', body: fd});
+  const d = await r.json();
+  btn.disabled = false; spin.style.display = 'none';
+
+  if (d.success) {
+    showRes('ures', 'ok',
+      `✅ Paper registered on blockchain!\n\nExam ID  : #${d.exam_id}\nHash     : ${d.hash}\nTX Hash  : ${d.tx_hash}\nFile     : ${d.enc_file}`);
+    document.getElementById('ename').value = '';
+    document.getElementById('edt').value   = '';
+    document.getElementById('ptxt').value  = '';
+    loadExams(); loadDash();
+  } else {
+    showRes('ures', 'err', '❌ ' + d.error);
+  }
+}
+
+// ── Edit Exam Time ────────────────────────────────────
+function showEdit(id, name) {
+  editExamId = id;
+  document.getElementById('editexamname').textContent = name;
+  document.getElementById('editres').style.display    = 'none';
+  document.getElementById('newdt').value              = '';
+  document.getElementById('editmodalbg').classList.add('open');
+}
+
+function closeEdit() { document.getElementById('editmodalbg').classList.remove('open'); }
+
+async function submitEdit() {
+  const newdt = document.getElementById('newdt').value;
+  if (!newdt) { showRes('editres', 'warn', '⚠️ Please select a new date and time'); return; }
+
+  const btn  = document.getElementById('editbtn');
+  const spin = document.getElementById('editspin');
+  btn.disabled = true; spin.style.display = 'block';
+
+  const r = await fetch(`/api/update-time/${editExamId}`, {
+    method:  'POST',
+    headers: {'Content-Type': 'application/json'},
+    body:    JSON.stringify({exam_datetime: newdt})
+  });
+  const d = await r.json();
+  btn.disabled = false; spin.style.display = 'none';
+
+  if (d.success) {
+    showRes('editres', 'ok', `✅ Exam time updated!\n${d.exam_name}\nNew time: ${d.new_time}\nTX: ${d.tx_hash}`);
+    loadExams(); loadDash();
+    setTimeout(() => closeEdit(), 2500);
+  } else {
+    showRes('editres', 'err', `❌ ${d.error}`);
+  }
+}
+
+// ── QR Code ───────────────────────────────────────────
+async function showQR(id) {
+  document.getElementById('qrtitle').textContent = 'Generating QR...';
+  document.getElementById('qrbody').innerHTML    = '<div class="empty"><div class="ei">⏳</div><div class="et">Generating QR...</div></div>';
+  document.getElementById('qrmodalbg').classList.add('open');
+
+  const r = await fetch(`/api/qr/${id}`);
+  const d = await r.json();
+  if (!d.success) {
+    document.getElementById('qrbody').innerHTML = `<div class="empty"><div class="ei">❌</div><div class="et">${d.error}</div></div>`;
+    return;
+  }
+  document.getElementById('qrtitle').textContent = 'Scan to Open Exam';
+  document.getElementById('qrbody').innerHTML = `
+    <img src="data:image/png;base64,${d.qr_b64}" style="width:220px;height:220px;border-radius:8px;"/>
+    <div style="font-size:11px;color:var(--muted);margin:12px 0 8px;">
+      Admin: print this QR and hand to exam center
+    </div>
+    <div style="background:var(--surf);border:1px solid var(--b1);border-radius:8px;padding:10px;
+                font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--green);
+                word-break:break-all;margin-bottom:10px;">${d.exam_url}</div>
+    <button class="btn bp bsm" style="width:100%;" onclick="printQR('${d.qr_b64}','${d.exam_url}')">
+      🖨️ Print QR Code
+    </button>`;
+}
+
+function closeQR() { document.getElementById('qrmodalbg').classList.remove('open'); }
+
+function printQR(qrB64, examUrl) {
+  const w = window.open('', '_blank');
+  w.document.write(`<!DOCTYPE html><html><head><title>SecureExam QR</title>
+  <style>
+    body{font-family:Arial,sans-serif;text-align:center;padding:40px;background:#fff;}
+    img{width:250px;height:250px;margin:20px auto;display:block;border:3px solid #000;padding:10px;}
+    h2{font-size:20px;margin-bottom:6px;}
+    p{font-size:12px;color:#444;margin:4px;}
+    .url{font-family:monospace;font-size:11px;background:#f0f0f0;padding:8px;border-radius:4px;margin-top:12px;word-break:break-all;}
+    .footer{margin-top:24px;font-size:11px;color:#888;border-top:1px solid #ddd;padding-top:12px;}
+  </style></head><body>
+  <h2>SecureExam — Blockchain Secured</h2>
+  <p>Scan this QR code to access the exam paper</p>
+  <p><strong>For Exam Center Use Only — Confidential</strong></p>
+  <img src="data:image/png;base64,${qrB64}"/>
+  <div class="url">${examUrl}</div>
+  <div class="footer">Generated by SecureExam.<br/>Paper accessible only after key is released at exam time.</div>
+  <script>window.onload=()=>{window.print();}<\/script>
+  </body></html>`);
+  w.document.close();
+}
+
+// ── Toast ─────────────────────────────────────────────
+function showToast(msg, icon = '🔒') {
+  const t  = document.getElementById('toast');
+  const tm = document.getElementById('toastmsg');
+  t.querySelector('.toast-icon').textContent = icon;
+  tm.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3500);
+}
+
+// ── Helpers ───────────────────────────────────────────
+function showRes(id, type, msg) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.className = 'res ' + (type === 'ok' ? 'rok' : type === 'warn' ? 'rwarn' : 'rerr');
+  el.style.whiteSpace = 'pre-wrap';
+  el.textContent = msg;
+  el.style.display = 'block';
+}
+
+// ── Theme toggle ──────────────────────────────────────
+function toggleTheme() {
+  const isLight = document.body.classList.toggle('light');
+  document.getElementById('themebtn').textContent = isLight ? '☀️' : '🌙';
+  localStorage.setItem('theme', isLight ? 'light' : 'dark');
+}
+
+// Apply saved theme on load
+(function() {
+  if (localStorage.getItem('theme') === 'light') {
+    document.body.classList.add('light');
+    document.addEventListener('DOMContentLoaded', () => {
+      const btn = document.getElementById('themebtn');
+      if (btn) btn.textContent = '☀️';
+    });
+  }
+})();
+
+</script>
+</body>
+</html>

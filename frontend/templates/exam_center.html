@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>SecureExam — Exam Center</title>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Outfit:wght@400;600;700;800&display=swap" rel="stylesheet"/>
+  <style>
+    :root{--bg:#04070e;--surf:#080d18;--card:#0b1120;--b1:#131f33;--b2:#1c2e4a;--green:#3dffa0;--blue:#38beff;--red:#ff4d6d;--yellow:#ffd166;--text:#d8e8f8;--muted:#3d5570;}
+    *{margin:0;padding:0;box-sizing:border-box;}
+    body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding:24px;}
+    body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(61,255,160,.025) 1px,transparent 1px),linear-gradient(90deg,rgba(61,255,160,.025) 1px,transparent 1px);background-size:52px 52px;pointer-events:none;z-index:0;}
+
+    .box{background:var(--card);border:1px solid var(--b2);border-radius:20px;padding:36px 40px;width:100%;max-width:500px;position:relative;z-index:1;animation:up .4s ease both;margin-top:24px;}
+
+    .logo{font-size:13px;font-weight:800;background:linear-gradient(120deg,var(--green),var(--blue));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;letter-spacing:1px;margin-bottom:20px;font-family:'JetBrains Mono',monospace;}
+    .exam-name{font-size:22px;font-weight:800;margin-bottom:5px;}
+    .exam-sub{font-size:11px;color:var(--muted);font-family:'JetBrains Mono',monospace;margin-bottom:24px;}
+
+    /* Login box */
+    .login-section{background:var(--surf);border:1px solid var(--b2);border-radius:12px;padding:20px;margin-bottom:20px;}
+    .login-title{font-size:14px;font-weight:700;margin-bottom:4px;}
+    .login-sub{font-size:12px;color:var(--muted);margin-bottom:16px;}
+    .fi{display:flex;flex-direction:column;gap:5px;margin-bottom:12px;}
+    label{font-size:11px;font-weight:600;color:var(--muted);}
+    input{background:var(--card);border:1px solid var(--b2);border-radius:8px;color:var(--text);padding:10px 13px;font-family:'Outfit',sans-serif;font-size:13px;outline:none;transition:border-color .2s;width:100%;}
+    input:focus{border-color:var(--green);}
+
+    /* Status */
+    .status-box{border-radius:12px;padding:16px 18px;margin-bottom:16px;display:flex;align-items:center;gap:12px;}
+    .status-locked{background:rgba(255,77,109,.07);border:1px solid rgba(255,77,109,.2);}
+    .status-released{background:rgba(61,255,160,.07);border:1px solid rgba(61,255,160,.2);}
+    .status-icon{font-size:26px;}
+    .status-text .st{font-size:14px;font-weight:700;}
+    .status-text .ss{font-size:11px;color:var(--muted);margin-top:2px;font-family:'JetBrains Mono',monospace;}
+    .status-released .st{color:var(--green);}
+    .status-locked .st{color:var(--red);}
+
+    /* Info */
+    .info-row{display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid var(--b1);font-size:13px;}
+    .info-row:last-of-type{border-bottom:none;}
+    .info-label{color:var(--muted);font-size:10px;font-family:'JetBrains Mono',monospace;text-transform:uppercase;letter-spacing:.5px;}
+    .info-value{color:var(--text);font-size:11px;font-family:'JetBrains Mono',monospace;word-break:break-all;text-align:right;max-width:65%;}
+    .info-value.green{color:var(--green);}
+
+    /* Countdown */
+    .countdown-box{background:var(--surf);border:1px solid var(--b1);border-radius:12px;padding:16px;margin-bottom:16px;text-align:center;}
+    .countdown-label{font-size:10px;color:var(--muted);font-family:'JetBrains Mono',monospace;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:6px;}
+    .countdown-time{font-size:26px;font-weight:800;font-family:'JetBrains Mono',monospace;color:var(--yellow);}
+
+    /* Buttons */
+    .btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:13px;border-radius:10px;border:none;font-family:'Outfit',sans-serif;font-size:14px;font-weight:700;cursor:pointer;transition:all .2s;text-decoration:none;margin-top:8px;}
+    .btn:disabled{opacity:.38;cursor:not-allowed;}
+    .btn-primary{background:var(--green);color:#000;}
+    .btn-primary:hover:not(:disabled){background:#fff;box-shadow:0 0 24px rgba(61,255,160,.4);}
+    .btn-ghost{background:transparent;color:var(--text);border:1px solid var(--b2);}
+    .btn-ghost:hover:not(:disabled){border-color:var(--blue);color:var(--blue);}
+    .btn-red{background:rgba(255,77,109,.1);color:var(--red);border:1px solid rgba(255,77,109,.25);}
+
+    /* Result */
+    .res{margin-top:12px;padding:12px 14px;border-radius:9px;font-family:'JetBrains Mono',monospace;font-size:11px;line-height:1.8;display:none;word-break:break-all;overflow-wrap:anywhere;white-space:pre-wrap;max-width:100%;box-sizing:border-box;}
+    .rok{background:rgba(61,255,160,.06);border:1px solid rgba(61,255,160,.18);color:var(--green);}
+    .rerr{background:rgba(255,77,109,.06);border:1px solid rgba(255,77,109,.18);color:var(--red);}
+
+    /* Verified badge */
+    .verified-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(61,255,160,.1);border:1px solid rgba(61,255,160,.25);border-radius:100px;padding:4px 12px;font-size:11px;font-weight:700;color:var(--green);font-family:'JetBrains Mono',monospace;margin-bottom:14px;}
+    .vdot{width:5px;height:5px;border-radius:50%;background:var(--green);box-shadow:0 0 6px var(--green);animation:blink 1.5s infinite;}
+
+    /* Role badge */
+    .role-bar{display:flex;justify-content:space-between;align-items:center;background:rgba(61,255,160,.05);border:1px solid rgba(61,255,160,.15);border-radius:8px;padding:8px 12px;margin-bottom:16px;font-size:11px;font-family:'JetBrains Mono',monospace;}
+    .role-name{color:var(--green);}
+    .role-logout{color:var(--muted);cursor:pointer;text-decoration:underline;}
+    .role-logout:hover{color:var(--red);}
+
+    /* Paper viewer */
+    .viewer{background:var(--surf);border:1px solid var(--b1);border-radius:12px;padding:20px;margin-top:16px;text-align:left;}
+    .viewer-label{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);margin-bottom:12px;letter-spacing:1px;}
+    .paper-text{font-family:'JetBrains Mono',monospace;font-size:12px;line-height:1.9;color:var(--text);white-space:pre-wrap;word-break:break-word;}
+
+    .spin{width:13px;height:13px;border:2px solid rgba(0,0,0,.15);border-top-color:currentColor;border-radius:50%;animation:rot .6s linear infinite;display:none;}
+
+
+    body.light{
+      --bg:#f0f4f8;--surf:#ffffff;--card:#ffffff;--b1:#dde3ec;--b2:#c8d0dc;
+      --green:#0a7c4e;--blue:#1565c0;--red:#c0392b;--yellow:#b7770d;
+      --text:#1a2332;--muted:#6b7f96;
+    }
+    body.light .box{background:#fff;border-color:#dde3ec;}
+    body.light input{background:#f8fafc;border-color:#c8d0dc;color:#1a2332;}
+    body.light .login-section{background:#f8fafc;border-color:#dde3ec;}
+    body.light .status-released{background:rgba(10,124,78,.07);border-color:rgba(10,124,78,.2);}
+    body.light .status-locked{background:rgba(192,57,43,.07);border-color:rgba(192,57,43,.2);}
+    body.light .countdown-box{background:#f8fafc;border-color:#dde3ec;}
+    body.light .viewer{background:#f8fafc;border-color:#dde3ec;}
+    body.light body::before{background-image:linear-gradient(rgba(10,124,78,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(10,124,78,.04) 1px,transparent 1px);}
+
+    @keyframes up{from{opacity:0;transform:translateY(14px);}to{opacity:1;transform:translateY(0);}}
+    @keyframes blink{0%,100%{opacity:1;}50%{opacity:.3;}}
+    @keyframes rot{to{transform:rotate(360deg);}}
+  </style>
+</head>
+<body>
+<div class="box">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
+    <div class="logo" style="margin-bottom:0;">⛓ SECUREEXAM · EXAM CENTER</div>
+    <button onclick="toggleTheme()" id="themebtn" style="background:none;border:1px solid var(--b2);border-radius:8px;padding:5px 10px;font-size:16px;cursor:pointer;color:var(--text);">🌙</button>
+  </div>
+  <div id="root">
+    <div style="text-align:center;color:var(--muted);padding:40px 0;">
+      <div style="font-size:32px;margin-bottom:10px;">⏳</div>
+      Loading...
+    </div>
+  </div>
+</div>
+
+<script>
+  const examId = parseInt("{{ exam_id }}");
+  let examData = null;
+  let userRole = "public";
+
+  window.onload = async () => {
+    // Check current session role
+    const ar = await fetch('/api/auth');
+    const ad = await ar.json();
+    userRole = ad.role;
+
+    // Load exam data
+    const r = await fetch('/api/papers');
+    const d = await r.json();
+
+    if (!d.success) { showError(d.error); return; }
+
+    examData = d.papers.find(x => x.id === examId);
+    if (!examData) { showError(`Exam #${examId} not found`); return; }
+
+    render();
+  };
+
+  function render() {
+    const p          = examData;
+    const now        = Math.floor(Date.now() / 1000);
+    const timeLeft   = p.unlock_time - now;
+    const isCenter   = userRole === "center";
+    const isAdmin    = userRole === "admin";
+    const hasAccess  = isCenter || isAdmin;
+
+    let html = '';
+
+    // Role bar (if logged in)
+    if (hasAccess) {
+      const roleLabel = isAdmin ? '🛡 Admin' : '🏫 Exam Center';
+      html += `<div class="role-bar">
+                 <span class="role-name">${roleLabel} — Authenticated</span>
+                 <span class="role-logout" onclick="doLogout()">Logout</span>
+               </div>`;
+    }
+
+    // Exam name
+    html += `<div class="exam-name">${p.exam_name}</div>
+             <div class="exam-sub">EXAM #${p.id} · BLOCKCHAIN SECURED</div>`;
+
+    // Verified badge
+    if (p.is_released) {
+      html += `<div class="verified-badge"><span class="vdot"></span> Blockchain Verified</div><br/>`;
+    }
+
+    // Status
+    if (p.is_released) {
+      html += `<div class="status-box status-released">
+                 <div class="status-icon">🔓</div>
+                 <div class="status-text">
+                   <div class="st">Key Released</div>
+                   <div class="ss">Paper is available</div>
+                 </div>
+               </div>`;
+    } else {
+      html += `<div class="status-box status-locked">
+                 <div class="status-icon">🔒</div>
+                 <div class="status-text">
+                   <div class="st">Paper Locked</div>
+                   <div class="ss">Waiting for exam time</div>
+                 </div>
+               </div>`;
+      if (timeLeft > 0) {
+        html += `<div class="countdown-box">
+                   <div class="countdown-label">Unlocks In</div>
+                   <div class="countdown-time" id="timer">--:--:--</div>
+                 </div>`;
+      }
+    }
+
+    // Info rows
+    html += `<div style="margin-bottom:16px;">
+               <div class="info-row">
+                 <div class="info-label">Unlock Time</div>
+                 <div class="info-value">${p.unlock_str}</div>
+               </div>
+               <div class="info-row">
+                 <div class="info-label">Paper Hash</div>
+                 <div class="info-value green">${p.paper_hash.slice(0,22)}...</div>
+               </div>
+               <div class="info-row">
+                 <div class="info-label">Contract</div>
+                 <div class="info-value">${examData.paper_hash ? '0x719dE78...' : '—'}</div>
+               </div>
+             </div>`;
+
+    // Actions
+    if (p.is_released && hasAccess) {
+      // Full access for center/admin
+      html += `<button class="btn btn-primary" onclick="viewPaper()">
+                 <span class="spin" id="viewspin"></span> 👁️ View Paper
+               </button>`;
+      html += `<a href="/api/download/${examId}" class="btn btn-ghost">⬇️ Download Paper</a>`;
+      html += `<div id="paperviewer"></div>`;
+    } else if (p.is_released && !hasAccess) {
+      // Released but not authenticated — show login
+      html += renderLoginBox();
+    } else if (!p.is_released && !hasAccess) {
+      // Locked and not authenticated
+      html += `<button class="btn btn-ghost" disabled>🔒 Paper locked until exam time</button>`;
+    } else {
+      // Locked but authenticated (admin viewing)
+      html += `<button class="btn btn-ghost" disabled>🔒 Paper locked — key not released yet</button>`;
+    }
+
+    document.getElementById('root').innerHTML = html;
+
+    if (!p.is_released && timeLeft > 0) startCountdown(p.unlock_time);
+  }
+
+  function renderLoginBox() {
+    return `
+      <div class="login-section">
+        <div class="login-title">🏫 Exam Center Login</div>
+        <div class="login-sub">Enter your exam center password to access the paper</div>
+        <div class="fi">
+          <label>Center Password</label>
+          <input type="password" id="cpass" placeholder="Enter center password"
+                 onkeydown="if(event.key==='Enter')doLogin()"/>
+        </div>
+        <button class="btn btn-primary" onclick="doLogin()" id="lbtn" style="margin-top:0;">
+          <span class="spin" id="lspin"></span> Login to Access Paper
+        </button>
+        <div class="res" id="lres"></div>
+      </div>`;
+  }
+
+  async function doLogin() {
+    const pass = document.getElementById('cpass').value;
+    const btn  = document.getElementById('lbtn');
+    const spin = document.getElementById('lspin');
+    btn.disabled = true; spin.style.display = 'block';
+
+    const r = await fetch('/api/login', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({password: pass, exam_id: examId})
+    });
+    const d = await r.json();
+    btn.disabled = false; spin.style.display = 'none';
+
+    if (d.success) {
+      userRole = d.role;
+      render();
+    } else {
+      document.getElementById('lres').className = 'res rerr';
+      document.getElementById('lres').textContent = '❌ ' + d.error;
+      document.getElementById('lres').style.display = 'block';
+    }
+  }
+
+  async function doLogout() {
+    await fetch('/api/logout', {method: 'POST'});
+    userRole = 'public';
+    render();
+  }
+
+
+  function clearResults() {
+    ['paperviewer'].forEach(id => {
+      const el = document.getElementById(id);
+      if (!el) return;
+      el.style.display = 'none';
+      el.innerHTML = '';
+    });
+  }
+
+  async function viewPaper() {
+    clearResults();
+    const spin = document.getElementById('viewspin');
+    spin.style.display = 'block';
+
+    const r = await fetch(`/api/view/${examId}`);
+    const d = await r.json();
+    spin.style.display = 'none';
+
+    const viewer = document.getElementById('paperviewer');
+    viewer.style.display = 'block';
+
+    if (!d.success) {
+      viewer.innerHTML = `<div class="res rerr" style="display:block;margin-top:12px;">❌ ${d.error}</div>`;
+      return;
+    }
+
+    if (d.type === 'pdf') {
+      viewer.innerHTML = `
+        <div class="viewer">
+          <div class="viewer-label">📄 ${d.filename} — PDF VIEWER</div>
+          <iframe src="data:application/pdf;base64,${d.content}"
+                  width="100%" height="520px"
+                  style="border:none;border-radius:8px;"></iframe>
+        </div>`;
+    } else {
+      viewer.innerHTML = `
+        <div class="viewer">
+          <div class="viewer-label">📄 ${d.filename}</div>
+          <div class="paper-text">${d.content.replace(/</g,'&lt;').replace(/>/g,'&gt;')}</div>
+        </div>`;
+    }
+
+    viewer.scrollIntoView({behavior: 'smooth'});
+  }
+
+
+  function startCountdown(unlockTime) {
+    function tick() {
+      const el   = document.getElementById('timer');
+      if (!el) return;
+      const left = unlockTime - Math.floor(Date.now() / 1000);
+      if (left <= 0) { el.textContent = 'Refreshing...'; setTimeout(() => location.reload(), 1500); return; }
+      const h = Math.floor(left / 3600);
+      const m = Math.floor((left % 3600) / 60);
+      const s = left % 60;
+      el.textContent = `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+    }
+    tick();
+    setInterval(tick, 1000);
+  }
+
+  function showError(msg) {
+    document.getElementById('root').innerHTML =
+      `<div style="text-align:center;padding:30px 0;">
+         <div style="font-size:32px;margin-bottom:10px;">❌</div>
+         <div style="color:var(--red);font-family:'JetBrains Mono',monospace;font-size:12px;">${msg}</div>
+       </div>`;
+  }
+
+
+
+// ── Theme toggle ──────────────────────────────────────
+function toggleTheme() {
+  const isLight = document.body.classList.toggle('light');
+  document.getElementById('themebtn').textContent = isLight ? '☀️' : '🌙';
+  localStorage.setItem('theme', isLight ? 'light' : 'dark');
+}
+
+(function() {
+  if (localStorage.getItem('theme') === 'light') {
+    document.body.classList.add('light');
+    window.addEventListener('load', () => {
+      const btn = document.getElementById('themebtn');
+      if (btn) btn.textContent = '☀️';
+    });
+  }
+})();
+
+</script>
+</body>
+</html>
