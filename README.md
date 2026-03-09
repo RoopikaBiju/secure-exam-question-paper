@@ -88,7 +88,7 @@ GANACHE_URL=http://127.0.0.1:7545
 
 ### 4. Start Ganache
 
-Open Ganache and start a workspace on port **7545**. Copy the first account address and private key into `.env`.
+Open Ganache and start a workspace quickstart. Copy the first account address and private key into `.env`.
 
 ### 5. Compile and deploy the smart contract
 
